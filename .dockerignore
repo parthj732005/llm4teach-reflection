@@ -1,0 +1,28 @@
+# Don't copy these into the Docker image — they're large or not needed
+
+# Training outputs (mounted as volumes anyway)
+log/
+saved_model/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Git
+.git/
+.gitignore
+
+# Windows-specific
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,87 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# LLM4Teach — docker-compose.yml
+#
+# Quick start:
+#   docker compose up train          ← default training run
+#   docker compose up dashboard      ← Streamlit live dashboard
+#   docker compose up tensorboard    ← TensorBoard at localhost:6006
+#   docker compose up jupyter        ← Jupyter notebook at localhost:8888
+#
+# Override training args:
+#   docker compose run --rm train python main.py train --task LavaDoorKey --savedir myrun
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+x-base: &base
+  build: .
+  volumes:
+    # Mount log + saved model dirs so they persist outside the container
+    - ./log:/app/log
+    - ./saved_model:/app/saved_model
+  environment:
+    - PYTHONUNBUFFERED=1
+
+services:
+
+  # ── Training (default) ──────────────────────────────────────────────────────
+  train:
+    <<: *base
+    container_name: llm4teach_train
+    command:
+      - python
+      - main.py
+      - train
+      - --task
+      - SimpleDoorKey
+      - --savedir
+      - run1
+      - --llm_backend
+      - ollama
+      - --llm_model
+      - qwen2.5:3b
+      - --reflection
+      - --reflection_backend
+      - ollama
+      - --reflection_model
+      - qwen2.5:7b
+
+  # ── Streamlit live dashboard ────────────────────────────────────────────────
+  dashboard:
+    <<: *base
+    container_name: llm4teach_dashboard
+    command:
+      - streamlit
+      - run
+      - simulator/live_dashboard.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+
+  # ── TensorBoard ─────────────────────────────────────────────────────────────
+  tensorboard:
+    <<: *base
+    container_name: llm4teach_tensorboard
+    command:
+      - tensorboard
+      - --logdir=/app/log
+      - --host=0.0.0.0
+      - --port=6006
+    ports:
+      - "6006:6006"
+
+  # ── Jupyter notebook ────────────────────────────────────────────────────────
+  jupyter:
+    <<: *base
+    container_name: llm4teach_jupyter
+    command:
+      - jupyter
+      - notebook
+      - --ip=0.0.0.0
+      - --port=8888
+      - --no-browser
+      - --allow-root
+      - --NotebookApp.token=''
+    ports:
+      - "8888:8888"

@@ -1,0 +1,47 @@
+# LLM4Teach — Python requirements
+# Tested with Python 3.11+
+
+# ── Core RL ───────────────────────────────────────────────────────────────────
+torch>=2.3.0
+gymnasium>=0.29.0
+minigrid>=2.3.0
+numpy>=1.26.0
+
+# ── Training utilities ────────────────────────────────────────────────────────
+tensorboard>=2.16.0     # logging + live_dashboard TensorBoard reader
+opencv-python>=4.9.0    # episode video recording
+
+# ── Plotting (notebook + analysis) ────────────────────────────────────────────
+matplotlib>=3.8.0
+
+# ── Live web dashboard (viz/ — launched by run_viz.bat) ───────────────────────
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0   # WebSocket server for viz/server.py
+# streamlit>=1.35.0         # LEGACY simulator/live_dashboard.py only; not used by viz/
+
+# ── Qwen LLM — local (free, recommended) ──────────────────────────────────────
+# Ollama client: just needs the `requests` library (already a transitive dep).
+# Install Ollama separately: https://ollama.ai
+# Pull models:
+#   ollama pull qwen2.5:3b    ← planner AND reflector (single model is enough;
+#                               the reflector reuses the planner model by default)
+#   ollama pull qwen2.5:7b    ← OPTIONAL: richer reflections (heavier, slower on CPU)
+requests>=2.31.0
+
+# ── Qwen LLM — cloud (optional) ───────────────────────────────────────────────
+# Uncomment to enable DashScope (Alibaba Cloud, free 2M tokens/month):
+# dashscope>=1.19.0
+
+# ── Notebook ──────────────────────────────────────────────────────────────────
+jupyter>=1.0.0
+ipykernel>=6.29.0
+
+# ── Optional: HuggingFace transformers backend ────────────────────────────────
+# Uncomment to run Qwen models directly via transformers (no Ollama needed):
+# transformers>=4.40.0
+# accelerate>=0.30.0
+
+# ── Removed (no longer required) ─────────────────────────────────────────────
+# fastchat        — replaced by Qwen/Ollama
+# openai          — not used; Ollama provides OpenAI-compatible endpoint locally
+# dashscope is optional (cloud fallback only)
