@@ -1,9 +1,21 @@
+[![Tests](https://github.com/parthj732005/llm4teach-reflection/actions/workflows/python.yml/badge.svg)](https://github.com/parthj732005/llm4teach-reflection/actions/workflows/python.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 # LLM4Teach — Large Language Models as Policy Teachers for RL Agents
 
 An implementation and experimental extension of the IJCAI 2024 paper  
 **"[Large Language Model as a Policy Teacher for Training Reinforcement Learning Agents](https://arxiv.org/abs/2311.13373)"**
 
 Trained on **Kaggle (Tesla T4 GPU)** using **Qwen 2.5:3b** via Ollama as the LLM teacher.
+
+The original [LLM4Teach (IJCAI 2024)](https://arxiv.org/abs/2311.13373) by Zhou et al. introduced a policy distillation framework where an LLM teacher provides soft action distributions to guide a PPO student via a kickstarting loss, with teacher influence gradually decayed as the student matures.
+
+This repository extends that work with three contributions:
+- **Episode-level reflection memory** — after each episode, Qwen 2.5:3b reflects on what went wrong; reflections are stored and retrieved to improve future plans
+- **Confidence-based cache invalidation** — the planner tracks per-state failure counts and discards stale plans when the agent repeatedly fails on the same symbolic state
+- **Dynamic entropy protection in PPO** — entropy bonus is scaled 2×/3× automatically when the policy starts to collapse, preventing premature convergence
+
+A 3-phase ablation (PPO / PPO+Planner / PPO+Reflection) is run on the `simpledoorkey` MiniGrid task, trained on Kaggle (Tesla T4).
 
 ---
 
@@ -187,6 +199,14 @@ LLM4Teach/
 ├── prompt/
 │   └── task_info.json          # Task descriptions fed to the LLM teacher
 │
+├── tests/                      # Unit tests (no GPU or Ollama required)
+│   ├── test_failure_detector.py
+│   ├── test_reflection_memory.py
+│   ├── test_experiment_config.py
+│   ├── test_episode_trajectory.py
+│   ├── test_symbolic_parser.py
+│   └── test_reflection_validation.py
+│
 ├── logs/                       # Phase 3 training logs (metrics, history, LLM stats)
 ├── screenshots/                # Training curve screenshots
 │
@@ -195,8 +215,11 @@ LLM4Teach/
 ├── LLM4Teach_Report_v2.pdf     # Full research report
 ├── LLM4Teach_Technical_Report.pdf
 │
+├── .github/workflows/python.yml  # CI — runs tests on every push
 ├── docker/                     # Docker setup for reproducibility
 ├── requirements.txt
+├── LICENSE
+├── CONTRIBUTING.md
 ├── setup.sh / setup.bat        # Local setup (Linux / Windows)
 ├── kaggle_setup.sh             # Kaggle-specific dependency setup
 └── run_train.sh / run_train.bat  # Launch training from CLI
@@ -269,6 +292,28 @@ cfg = ExperimentConfig(use_planner=True, use_kickstarting=True,
 - `minigrid==3.1.0`, `gymnasium==1.3.0`
 - Ollama + `qwen2.5:3b` (or set `QWEN_BACKEND='offline'` to skip LLM)
 - See [`requirements.txt`](requirements.txt) for full list
+
+---
+
+## Tests
+
+Unit tests cover the core deterministic components — no GPU, no Ollama, no internet required.
+
+```bash
+pip install pytest numpy
+pytest tests/ -v
+```
+
+| Test file | What it covers |
+|---|---|
+| `test_failure_detector.py` | Stuck, oscillation, failed interaction, lava death detection |
+| `test_reflection_memory.py` | Deduplication, eviction, cluster retrieval, coordinate rejection |
+| `test_experiment_config.py` | Component flag validation, preset builder, overrides |
+| `test_episode_trajectory.py` | `classify_failure()` on known trajectory patterns |
+| `test_symbolic_parser.py` | Plan grammar validation, object whitelist, deduplication |
+| `test_reflection_validation.py` | Hallucination pattern rejection (coordinates, directions, speculation) |
+
+CI runs automatically on every push via GitHub Actions.
 
 ---
 
