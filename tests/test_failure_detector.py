@@ -22,7 +22,7 @@ for _mod in [
     "gymnasium", "gymnasium.spaces",
     "minigrid", "minigrid.core", "minigrid.core.actions",
     "torch", "torch.nn", "torch.nn.functional",
-    "cv2", "base64",
+    "cv2", "base64", "requests",
 ]:
     sys.modules.setdefault(_mod, MagicMock())
 
