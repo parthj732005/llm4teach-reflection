@@ -1,4 +1,4 @@
-[![Tests](https://github.com/parthj732005/llm4teach-reflection/actions/workflows/python.yml/badge.svg)](https://github.com/parthj732005/llm4teach-reflection/actions/workflows/python.yml)
+[![Tests](https://github.com/parthj732005/llm4teach-reflection/actions/workflows/python.yml/badge.svg?branch=main)](https://github.com/parthj732005/llm4teach-reflection/actions/workflows/python.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 # LLM4Teach — Large Language Models as Policy Teachers for RL Agents
